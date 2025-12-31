@@ -2,7 +2,15 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
-import type { Tables, InsertTables } from '@/lib/types/database'
+
+export interface App {
+  id: string
+  owner_id: string
+  name: string
+  description: string | null
+  created_at: string
+  updated_at: string
+}
 
 export function useApps() {
   const supabase = createClient()
@@ -16,7 +24,7 @@ export function useApps() {
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      return data as Tables<'apps'>[]
+      return data as App[]
     },
   })
 }
@@ -34,7 +42,7 @@ export function useApp(appId: string) {
         .single()
 
       if (error) throw error
-      return data as Tables<'apps'>
+      return data as App
     },
     enabled: !!appId,
   })
@@ -51,12 +59,12 @@ export function useCreateApp() {
 
       const { data, error } = await supabase
         .from('apps')
-        .insert({ ...app, owner_id: user.id } as InsertTables<'apps'>)
+        .insert({ ...app, owner_id: user.id })
         .select()
         .single()
 
       if (error) throw error
-      return data as Tables<'apps'>
+      return data as App
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['apps'] })

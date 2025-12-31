@@ -2,7 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { corsHeaders, handleCors } from '../_shared/cors.ts';
 import { createSupabaseClient } from '../_shared/supabase.ts';
 import { getPreviousState, logStateChange } from '../_shared/state-machine.ts';
-import { ProjectState, StateTransitionResult } from '../_shared/types.ts';
+import { ProjectState, StateTransitionResult, STATE_ORDER } from '../_shared/types.ts';
 
 interface RequestBody {
   project_id: string;
@@ -55,7 +55,6 @@ serve(async (req: Request) => {
 
     if (target_state) {
       // Validate target state is earlier than current
-      const { STATE_ORDER } = await import('../_shared/types.ts');
       const currentIndex = STATE_ORDER.indexOf(currentState);
       const targetIndex = STATE_ORDER.indexOf(target_state);
 

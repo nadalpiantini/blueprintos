@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useApps, useDeleteApp } from '@/lib/hooks/use-apps'
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { CreateAppDialog } from '@/components/dashboard/create-app-dialog'
 import { Plus, FolderKanban, Trash2, ArrowRight } from 'lucide-react'
 
-export default function AppsPage() {
+function AppsPageContent() {
   const searchParams = useSearchParams()
   const [dialogOpen, setDialogOpen] = useState(false)
   const { data: apps, isLoading } = useApps()
@@ -101,5 +101,13 @@ export default function AppsPage() {
 
       <CreateAppDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </div>
+  )
+}
+
+export default function AppsPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-12"><p className="text-muted-foreground">Cargando...</p></div>}>
+      <AppsPageContent />
+    </Suspense>
   )
 }

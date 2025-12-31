@@ -2,7 +2,36 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
-import type { Tables, InsertTables, ProjectState } from '@/lib/types/database'
+import type { ProjectState } from '@/lib/types/database'
+
+export interface Project {
+  id: string
+  app_id: string
+  name: string
+  description: string | null
+  current_state: ProjectState
+  created_at: string
+  updated_at: string
+}
+
+export interface QuickStats {
+  id: string
+  project_id: string
+  artifact_count: number
+  topic_count: number
+  resolved_topic_count: number
+  adr_count: number
+  locked_adr_count: number
+  risk_count: number
+  high_risk_count: number
+  task_count: number
+  completed_task_count: number
+  test_count: number
+  passed_test_count: number
+  failed_test_count: number
+  last_activity_at: string
+  updated_at: string
+}
 
 export function useProjects(appId: string) {
   const supabase = createClient()
@@ -17,7 +46,7 @@ export function useProjects(appId: string) {
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      return data as Tables<'projects'>[]
+      return data as Project[]
     },
     enabled: !!appId,
   })
@@ -36,7 +65,7 @@ export function useProject(projectId: string) {
         .single()
 
       if (error) throw error
-      return data as Tables<'projects'>
+      return data as Project
     },
     enabled: !!projectId,
   })
@@ -55,7 +84,7 @@ export function useProjectStats(projectId: string) {
         .single()
 
       if (error) throw error
-      return data as Tables<'quick_stats'>
+      return data as QuickStats
     },
     enabled: !!projectId,
   })
@@ -69,12 +98,12 @@ export function useCreateProject() {
     mutationFn: async (project: { app_id: string; name: string; description?: string }) => {
       const { data, error } = await supabase
         .from('projects')
-        .insert(project as InsertTables<'projects'>)
+        .insert(project)
         .select()
         .single()
 
       if (error) throw error
-      return data as Tables<'projects'>
+      return data as Project
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['projects', data.app_id] })
