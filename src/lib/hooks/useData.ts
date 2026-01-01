@@ -28,7 +28,7 @@ export function useApps() {
     queryKey: ["apps"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("apps")
+        .from("blueprintos_apps")
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -42,12 +42,14 @@ export function useApp(id: string) {
     queryKey: ["apps", id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("apps")
-        .select("*, projects(*)")
+        .from("blueprintos_apps")
+        .select("*, blueprintos_projects(*)")
         .eq("id", id)
         .single();
       if (error) throw error;
-      return data as App & { projects: Project[] };
+      // Map blueprintos_projects to projects for component compatibility
+      const { blueprintos_projects, ...rest } = data;
+      return { ...rest, projects: blueprintos_projects || [] } as App & { projects: Project[] };
     },
     enabled: !!id,
   });
@@ -62,7 +64,7 @@ export function useCreateApp() {
       if (!user) throw new Error("Not authenticated");
 
       const { data, error } = await supabase
-        .from("apps")
+        .from("blueprintos_apps")
         .insert({ ...app, owner_id: user.id })
         .select()
         .single();
@@ -80,8 +82,8 @@ export function useProjects(appId?: string) {
     queryKey: ["projects", appId],
     queryFn: async () => {
       let query = supabase
-        .from("projects")
-        .select("*, quick_stats(*)")
+        .from("blueprintos_projects")
+        .select("*, blueprintos_quick_stats(*)")
         .order("updated_at", { ascending: false });
 
       if (appId) {
@@ -100,16 +102,16 @@ export function useProject(id: string) {
     queryKey: ["projects", id],
     queryFn: async (): Promise<ProjectWithDetails> => {
       const { data, error } = await supabase
-        .from("projects")
+        .from("blueprintos_projects")
         .select(`
           *,
-          quick_stats(*),
-          artifacts(*),
-          topics(*),
-          adrs(*),
-          tasks(*),
-          tests(*),
-          risks(*)
+          blueprintos_quick_stats(*),
+          blueprintos_artifacts(*),
+          blueprintos_topics(*),
+          blueprintos_adrs(*),
+          blueprintos_tasks(*),
+          blueprintos_tests(*),
+          blueprintos_risks(*)
         `)
         .eq("id", id)
         .single();
@@ -130,7 +132,7 @@ export function useCreateProject() {
       description?: string;
     }) => {
       const { data, error } = await supabase
-        .from("projects")
+        .from("blueprintos_projects")
         .insert(project)
         .select()
         .single();
@@ -157,7 +159,7 @@ export function useUpdateProject() {
       current_state?: string;
     }) => {
       const { data, error } = await supabase
-        .from("projects")
+        .from("blueprintos_projects")
         .update(updates)
         .eq("id", id)
         .select()

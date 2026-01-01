@@ -11,6 +11,7 @@ import {
   getStateVariant,
   Button,
 } from "@/components/ui";
+import { AIAssistant } from "@/components";
 import type { ProjectState } from "@/lib/supabase";
 
 const stateOrder: ProjectState[] = [
@@ -207,6 +208,10 @@ export default function ProjectDetailPage() {
             )}
           </CardContent>
         </Card>
+      </div>
+
+      <div className="h-[500px]">
+        <AIAssistant projectId={project.id} projectName={project.name} />
       </div>
     </div>
   );

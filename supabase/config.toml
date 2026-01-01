@@ -36,5 +36,11 @@ enable_signup = true
 double_confirm_changes = true
 enable_confirmations = false
 
-[functions]
+[functions.apps]
+verify_jwt = true
+
+[functions.projects]
+verify_jwt = true
+
+[functions.ai-assistant]
 verify_jwt = true
